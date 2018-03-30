@@ -667,6 +667,14 @@ ifeq (${DYN_DISABLE_AUTH},1)
 $(eval $(call add_define,DYN_DISABLE_AUTH))
 endif
 
+# pass macros that allow building ATF in 2 flavors for eCockpit
+ifdef ECOCKPIT_A53
+        $(eval $(call add_define,ECOCKPIT_A53))
+endif
+ifdef ECOCKPIT_A72
+        $(eval $(call add_define,ECOCKPIT_A72))
+endif
+
 ################################################################################
 # Build targets
 ################################################################################
