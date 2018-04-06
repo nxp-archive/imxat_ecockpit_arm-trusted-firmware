@@ -22,6 +22,25 @@
 
 func bl31_entrypoint
 #ifdef PLAT_imx8qm
+#if (defined ECOCKPIT_A53) || (defined ECOCKPIT_A72)
+	/*
+	 * running on cluster Cortex-A53:
+	 * => proceed normally to bl31
+	 */
+	mrs	x20, mpidr_el1
+	ands	x20, x20, #MPIDR_CLUSTER_MASK
+	beq	bl31_entrypoint_proceed
+
+	/*
+	 * running on cluster Cortex-A72:
+	 * => trampoline to 0xC00000xx
+	 * where bl31 version for A72 stands
+	 */
+	mov	x20, #0xC0000000
+	add	x20, x20, #bl31_entrypoint_proceed - bl31_entrypoint
+	br	x20
+bl31_entrypoint_proceed:
+#endif
 	ldr    x1, stm
 	ldr    w0, =0x80000000
 	str    w0, [x1]
