@@ -67,10 +67,15 @@ endfunc plat_is_my_cpu_primary
 	 * ----------------------------------------------
 	 */
 func plat_my_core_pos
+#if ((defined ECOCKPIT_A72) || (defined ECOCKPIT_A53))
+	mrs	x0, mpidr_el1
+	and	x0, x0, #MPIDR_CPU_MASK
+#else
 	mrs	x0, mpidr_el1
 	and	x1, x0, #MPIDR_CPU_MASK
 	and 	x0, x0, #MPIDR_CLUSTER_MASK
 	add	x0, x1, x0, LSR #6
+#endif
 	ret
 endfunc plat_my_core_pos
 
