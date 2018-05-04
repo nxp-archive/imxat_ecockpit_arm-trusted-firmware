@@ -180,6 +180,7 @@ void mx8_partition_resources(void)
 	bool owned, owned2;
 	sc_err_t err;
 	int i;
+
 #ifdef TEE_IMX8
 	sc_rm_mr_t mr_tee = 64;
 	bool mr_tee_atf_same = false;
@@ -220,9 +221,12 @@ void mx8_partition_resources(void)
 				ERROR("Memreg get info failed, %u\n", mr);
 			} else {
 				NOTICE("Memreg %u 0x%llx -- 0x%llx\n", mr, start, end);
-
-				if (BL31_BASE >= start && (BL31_LIMIT - 1) <= end) {
+				/* keep MR that overlaps or include ATF address range */
+				if ( (BL31_BASE <= start && (BL31_LIMIT - 1) >= start)
+					|| (BL31_BASE <= end && (BL31_LIMIT - 1) >= end)
+					|| (BL31_BASE >= start && (BL31_LIMIT - 1) <= end) ) {
 					mr_record = mr; /* Record the mr for ATF running */
+					NOTICE("Memreg %u 0x%lx -- 0x%lx reserved to ATF\n", mr_record, start, end);
 				}
 #ifdef TEE_IMX8
 				else if (BL32_BASE >= start && (BL32_LIMIT -1) <= end) {
@@ -277,6 +281,7 @@ void mx8_partition_resources(void)
 		}
 	}
 #endif
+
 	if (mr_record != 64) {
 		err = sc_rm_get_memreg_info(ipc_handle, mr_record, &start, &end);
 
