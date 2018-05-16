@@ -13,7 +13,7 @@
 #include <utils.h>
 
 /* the GICv3 driver only needs to be initialized in EL3 */
-uintptr_t rdistif_base_addrs[PLATFORM_CORE_COUNT];
+uintptr_t rdistif_base_addrs[PLATFORM_GIC_CORE_COUNT];
 
 static const interrupt_prop_t g01s_interrupt_props[] = {
 	INTR_PROP_DESC(8, GIC_HIGHEST_SEC_PRIORITY,
@@ -22,7 +22,11 @@ static const interrupt_prop_t g01s_interrupt_props[] = {
 
 static unsigned int plat_imx_mpidr_to_core_pos(unsigned long mpidr)
 {
+#if (defined ECOCKPIT_A53) || (defined ECOCKPIT_A72)
+	return (unsigned int)plat_gic_core_pos_by_mpidr(mpidr);
+#else
 	return (unsigned int)plat_core_pos_by_mpidr(mpidr);
+#endif
 }
 
 const gicv3_driver_data_t arm_gic_data = {
@@ -30,7 +34,7 @@ const gicv3_driver_data_t arm_gic_data = {
 	.gicr_base = PLAT_GICR_BASE,
 	.interrupt_props = g01s_interrupt_props,
 	.interrupt_props_num = ARRAY_SIZE(g01s_interrupt_props),
-	.rdistif_num = PLATFORM_CORE_COUNT,
+	.rdistif_num = PLATFORM_GIC_CORE_COUNT,
 	.rdistif_base_addrs = rdistif_base_addrs,
 	.mpidr_to_core_pos = plat_imx_mpidr_to_core_pos,
 };
@@ -51,29 +55,29 @@ void plat_gic_driver_init(void)
 void plat_gic_init(void)
 {
 	gicv3_distif_init();
-	gicv3_rdistif_init(plat_my_core_pos());
-	gicv3_cpuif_enable(plat_my_core_pos());
+	gicv3_rdistif_init(plat_get_core_pos());
+	gicv3_cpuif_enable(plat_get_core_pos());
 }
 
 void plat_gic_cpuif_enable(void)
 {
-	gicv3_cpuif_enable(plat_my_core_pos());
+	gicv3_cpuif_enable(plat_get_core_pos());
 }
 
 void plat_gic_cpuif_disable(void)
 {
-	gicv3_cpuif_disable(plat_my_core_pos());
+	gicv3_cpuif_disable(plat_get_core_pos());
 }
 
 void plat_gic_pcpu_init(void)
 {
-	gicv3_rdistif_init(plat_my_core_pos());
+	gicv3_rdistif_init(plat_get_core_pos());
 }
 
 void plat_gic_save(unsigned int proc_num, struct plat_gic_ctx *ctx)
 {
 	/* save the gic rdist/dist context */
-	for (int i = 0; i < PLATFORM_CORE_COUNT; i++)
+	for (int i = 0; i < PLATFORM_GIC_CORE_COUNT; i++)
 		gicv3_rdistif_save(i, &ctx->rdist_ctx[i]);
 	gicv3_distif_save(&ctx->dist_ctx);
 }
@@ -82,6 +86,6 @@ void plat_gic_restore(unsigned int proc_num, struct plat_gic_ctx *ctx)
 {
 	/* restore the gic rdist/dist context */
 	gicv3_distif_init_restore(&ctx->dist_ctx);
-	for (int i = 0; i < PLATFORM_CORE_COUNT; i++)
+	for (int i = 0; i < PLATFORM_GIC_CORE_COUNT; i++)
 		gicv3_rdistif_init_restore(i, &ctx->rdist_ctx[i]);
 }

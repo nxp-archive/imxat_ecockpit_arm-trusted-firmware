@@ -16,6 +16,7 @@ struct plat_gic_ctx {
 };
 
 unsigned int plat_calc_core_pos(uint64_t mpidr);
+unsigned int plat_get_core_pos(void);
 void imx_mailbox_init(uintptr_t base_addr);
 void plat_gic_driver_init(void);
 void plat_gic_init(void);
@@ -24,6 +25,9 @@ void plat_gic_cpuif_disable(void);
 void plat_gic_pcpu_init(void);
 void plat_gic_save(unsigned int proc_num, struct plat_gic_ctx *ctx);
 void plat_gic_restore(unsigned int proc_num, struct plat_gic_ctx *ctx);
+#if (defined ECOCKPIT_A53) || (defined ECOCKPIT_A72)
+int plat_gic_core_pos_by_mpidr(u_register_t mpidr);
+#endif
 
 void __dead2 imx_system_off(void);
 void __dead2 imx_system_reset(void);

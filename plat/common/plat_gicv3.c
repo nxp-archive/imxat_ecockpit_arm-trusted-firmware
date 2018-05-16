@@ -12,6 +12,7 @@
 #include <interrupt_mgmt.h>
 #include <platform.h>
 #include <stdbool.h>
+#include <plat_imx8.h>
 
 #ifdef IMAGE_BL31
 
@@ -115,7 +116,11 @@ uint32_t plat_ic_acknowledge_interrupt(void)
 uint32_t plat_ic_get_interrupt_type(uint32_t id)
 {
 	assert(IS_IN_EL3());
+#if ((defined ECOCKPIT_A72) || (defined ECOCKPIT_A53))
+	return gicv3_get_interrupt_type(id, plat_get_core_pos());
+#else
 	return gicv3_get_interrupt_type(id, plat_my_core_pos());
+#endif
 }
 
 /*

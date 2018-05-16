@@ -21,6 +21,7 @@ const unsigned char *plat_get_power_domain_tree_desc(void)
 }
 
 #if ((defined ECOCKPIT_A72) || (defined ECOCKPIT_A53))
+/* In eCockpit configuration, each cluster is considered alone. */
 int plat_core_pos_by_mpidr(u_register_t mpidr)
 {
        unsigned int cpu_id;
@@ -32,11 +33,27 @@ int plat_core_pos_by_mpidr(u_register_t mpidr)
 
        cpu_id = MPIDR_AFFLVL0_VAL(mpidr);
 
-       if (cpu_id > PLATFORM_MAX_CPU_PER_CLUSTER)
+       if (cpu_id >= PLATFORM_MAX_CPU_PER_CLUSTER)
                return -1;
 
        return cpu_id;
 }
+
+int plat_gic_core_pos_by_mpidr(u_register_t mpidr)
+{
+	unsigned int cluster_id, cpu_id;
+
+	mpidr &= MPIDR_AFFINITY_MASK;
+
+	if (mpidr & ~(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK))
+		return -1;
+
+	cluster_id = MPIDR_AFFLVL1_VAL(mpidr);
+	cpu_id = MPIDR_AFFLVL0_VAL(mpidr);
+
+	return (cpu_id + (cluster_id * 4));
+}
+
 #else
 int plat_core_pos_by_mpidr(u_register_t mpidr)
 {
