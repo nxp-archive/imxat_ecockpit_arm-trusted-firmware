@@ -90,7 +90,7 @@ int imx_pwr_domain_on(u_register_t mpidr)
 
 	if (sc_pm_cpu_start(ipc_handle,
 		ap_core_index[cpu_id + PLATFORM_CLUSTER0_CORE_COUNT * cluster_id],
-		true, BL31_BASE) != SC_ERR_NONE) {
+		true, CPU_START_ADDR) != SC_ERR_NONE) {
 		ERROR("boot core %d failed!\n", cpu_id + PLATFORM_CLUSTER0_CORE_COUNT * cluster_id);
 		ret = PSCI_E_INTERN_FAIL;
 	}
