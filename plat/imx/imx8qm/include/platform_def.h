@@ -62,11 +62,13 @@
 
 #define BL31_BASE			0xc0000000
 #define BL31_LIMIT			0xc0020000
+#define CPU_START_ADDR      0x80000000  /* jump onto trampoline */
 #else	/* !(defined ECOCKPIT_A72) */
 #define PLAT_BOOT_MU_BASE		0x5D1B0000
 
 #define BL31_BASE			0x80000000
 #define BL31_LIMIT			0x80020000
+#define CPU_START_ADDR      BL31_BASE	/* default behavior */
 #endif
 
 #ifdef TEE_IMX8
