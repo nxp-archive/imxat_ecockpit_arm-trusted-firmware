@@ -226,7 +226,7 @@ void mx8_partition_resources(void)
 					|| (BL31_BASE <= end && (BL31_LIMIT - 1) >= end)
 					|| (BL31_BASE >= start && (BL31_LIMIT - 1) <= end) ) {
 					mr_record = mr; /* Record the mr for ATF running */
-					NOTICE("Memreg %u 0x%lx -- 0x%lx reserved to ATF\n", mr_record, start, end);
+					NOTICE("Memreg %u 0x%llx -- 0x%llx reserved to ATF\n", mr_record, start, end);
 				}
 #ifdef TEE_IMX8
 				else if (BL32_BASE >= start && (BL32_LIMIT -1) <= end) {
@@ -497,7 +497,11 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 	/* init the first cluster's cci slave interface */
 	cci_init(PLAT_CCI_BASE, imx8qm_cci_map, PLATFORM_CLUSTER_COUNT);
+#if (!defined ECOCKPIT_A53) && (!defined ECOCKPIT_A72)
 	cci_enable_snoop_dvm_reqs(MPIDR_AFFLVL1_VAL(read_mpidr_el1()));
+#else
+	NOTICE("bl31_early_platform_setup: skipping cci_enable_snoop_dvm_reqs()\n");
+#endif
 }
 
 void bl31_plat_arch_setup(void)
