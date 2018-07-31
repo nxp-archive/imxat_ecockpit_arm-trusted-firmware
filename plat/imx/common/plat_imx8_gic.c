@@ -11,6 +11,9 @@
 #include <platform.h>
 #include <platform_def.h>
 #include <utils.h>
+#include <debug.h>
+#include <mmio.h>
+#include <gic_common.h>
 
 /* the GICv3 driver only needs to be initialized in EL3 */
 uintptr_t rdistif_base_addrs[PLATFORM_GIC_CORE_COUNT];
@@ -54,7 +57,19 @@ void plat_gic_driver_init(void)
 
 void plat_gic_init(void)
 {
+#if (defined ECOCKPIT_A53) || (defined ECOCKPIT_A72)
+	/* check if GICD already configured, in case of 2nd partition (re)boot */
+	uint32_t gicd_ctlr = mmio_read_32(PLAT_GICD_BASE + GICD_CTLR);
+
+	if (gicd_ctlr & (CTLR_ENABLE_G0_BIT | CTLR_ENABLE_G1S_BIT | CTLR_ENABLE_G1NS_BIT)) {
+		NOTICE("GIC Distributor already configured: skip gicv3_distif_init \n");
+	} else {
+		gicv3_distif_init();
+		NOTICE("plat_gic_init: gicv3_distif_init done\n");
+	}
+#else
 	gicv3_distif_init();
+#endif
 	gicv3_rdistif_init(plat_get_core_pos());
 	gicv3_cpuif_enable(plat_get_core_pos());
 }
