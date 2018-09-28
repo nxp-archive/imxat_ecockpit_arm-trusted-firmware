@@ -63,6 +63,8 @@ void plat_gic_init(void)
 
 	if (gicd_ctlr & (CTLR_ENABLE_G0_BIT | CTLR_ENABLE_G1S_BIT | CTLR_ENABLE_G1NS_BIT)) {
 		NOTICE("GIC Distributor already configured: skip gicv3_distif_init \n");
+		/* clear all interrupts for this cluster */
+		gicv3_distif_clear();
 	} else {
 		gicv3_distif_init();
 		NOTICE("plat_gic_init: gicv3_distif_init done\n");
