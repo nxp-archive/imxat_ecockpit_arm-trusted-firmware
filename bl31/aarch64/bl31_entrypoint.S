@@ -167,8 +167,14 @@ endfunc bl31_entrypoint
 
 .ltorg
 stm:
+	/* the MU_SR register stores the 'cold boot' bit passed to SCU */
+#ifdef ECOCKPIT_A72
+	/* A72: the MU_SR register address in MU3A */
+	.quad 0x5D1E0020
+#else
+	/* A53: the MU_SR register address in MU0A */
 	.quad 0x5D1B0020
-
+#endif
 	/* --------------------------------------------------------------------
 	 * This CPU has been physically powered up. It is either resuming from
 	 * suspend or has simply been turned on. In both cases, call the BL31
