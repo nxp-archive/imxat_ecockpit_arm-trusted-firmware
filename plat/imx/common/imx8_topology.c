@@ -11,8 +11,12 @@
 const unsigned char imx_power_domain_tree_desc[] = {
 	PWR_DOMAIN_AT_MAX_LVL,
 	PLATFORM_CLUSTER_COUNT,
+#if ((defined ECOCKPIT_A72) || (defined ECOCKPIT_A53))
+	ECOCKPIT_CLUSTER_CORE_COUNT,
+#else
 	PLATFORM_CLUSTER0_CORE_COUNT,
 	PLATFORM_CLUSTER1_CORE_COUNT,
+#endif
 };
 
 const unsigned char *plat_get_power_domain_tree_desc(void)
