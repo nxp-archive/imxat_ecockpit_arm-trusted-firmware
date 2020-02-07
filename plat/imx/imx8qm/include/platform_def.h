@@ -78,10 +78,17 @@
 #endif
 
 #ifdef TEE_IMX8
+#ifdef ECOCKPIT_A53
+#define BL32_BASE			0xbe000000
+#define BL32_SIZE			0x02000000
+#define BL32_SHM_SIZE			0x00400000
+#define BL32_LIMIT			0xc0000000
+#else
 #define BL32_BASE			0xfe000000
 #define BL32_SIZE			0x02000000
 #define BL32_SHM_SIZE			0x00400000
 #define BL32_LIMIT			0x100000000
+#endif
 #endif
 
 #define OCRAM_BASE		0x100000
