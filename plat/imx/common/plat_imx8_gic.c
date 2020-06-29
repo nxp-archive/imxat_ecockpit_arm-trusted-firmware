@@ -15,6 +15,10 @@
 #include <mmio.h>
 #include <gic_common.h>
 
+#ifndef PLATFORM_GIC_CORE_COUNT
+#define PLATFORM_GIC_CORE_COUNT PLATFORM_CORE_COUNT
+#endif
+
 /* the GICv3 driver only needs to be initialized in EL3 */
 uintptr_t rdistif_base_addrs[PLATFORM_GIC_CORE_COUNT];
 
